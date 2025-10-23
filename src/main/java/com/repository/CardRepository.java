@@ -1,0 +1,23 @@
+package com.repository;
+
+import com.entity.Card;
+import com.enums.CardStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface CardRepository extends JpaRepository<Card, Long> {
+
+    Page<Card> findByUserId(Long userId, Pageable pageable);
+
+    Page<Card> findByUserIdAndStatus(Long userId, CardStatus status, Pageable pageable);
+
+    Page<Card> findByStatus(CardStatus status, Pageable pageable);
+
+    List<Card> findAllByUserId(Long userId);
+
+}
