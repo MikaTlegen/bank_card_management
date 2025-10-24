@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="001-create-users-table" author="your-name">
+        <createTable tableName="users">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(50)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="email" type="VARCHAR(100)">
+                <constraints unique="true" nullable="false"/>
+            </column>
+            <column name="full_name" type="VARCHAR(100)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="last_name" type="VARCHAR(100)">
+                <constraints nullable="true"/>
+            </column>
+            <column name="role" type="VARCHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="active" type="BOOLEAN" defaultValue="true">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Добавляем комментарии к таблице и колонкам -->
+        <sql>
+            COMMENT ON TABLE users IS 'Таблица для хранения информации о пользователях системы';
+            COMMENT ON COLUMN users.id IS 'Уникальный идентификатор пользователя';
+            COMMENT ON COLUMN users.username IS 'Уникальное имя пользователя для входа в систему';
+            COMMENT ON COLUMN users.password IS 'Хешированный пароль пользователя';
+            COMMENT ON COLUMN users.email IS 'Уникальный email пользователя';
+            COMMENT ON COLUMN users.full_name IS 'Имя пользователя';
+            COMMENT ON COLUMN users.last_name IS 'Фамилия пользователя';
+            COMMENT ON COLUMN users.role IS 'Роль пользователя (ROLE_ADMIN, ROLE_USER)';
+            COMMENT ON COLUMN users.active IS 'Флаг активности пользователя';
+        </sql>
+
+        <!-- Создаем индексы для улучшения производительности -->
+        <createIndex tableName="users" indexName="idx_users_username">
+            <column name="username"/>
+        </createIndex>
+
+        <createIndex tableName="users" indexName="idx_users_email">
+            <column name="email"/>
+        </createIndex>
+
+        <createIndex tableName="users" indexName="idx_users_role">
+            <column name="role"/>
+        </createIndex>
+
+        <createIndex tableName="users" indexName="idx_users_active">
+            <column name="active"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Добавляем начальных пользователей (опционально) -->
+    <changeSet id="001-insert-default-users" author="your-name">
+        <insert tableName="users">
+            <column name="username" value="admin"/>
+            <column name="password" value="$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubh4a"/> <!-- password: admin123 -->
+            <column name="email" value="admin@example.com"/>
+            <column name="full_name" value="System"/>
+            <column name="last_name" value="Administrator"/>
+            <column name="role" value="ROLE_ADMIN"/>
+            <column name="active" value="true"/>
+        </insert>
+
+        <insert tableName="users">
+            <column name="username" value="user1"/>
+            <column name="password" value="$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubh4a"/> <!-- password: admin123 -->
+            <column name="email" value="user1@example.com"/>
+            <column name="full_name" value="John"/>
+            <column name="last_name" value="Doe"/>
+            <column name="role" value="ROLE_USER"/>
+            <column name="active" value="true"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

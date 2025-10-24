@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <changeSet id="003-create-transactions-table" author="your-name">
+        <createTable tableName="transactions">
+            <column name="id" type="INT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="from_card_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_transactions_from_card_id" references="cards(id)"/>
+            </column>
+            <column name="to_card_id" type="BIGINT">
+                <constraints nullable="false" foreignKeyName="fk_transactions_to_card_id" references="cards(id)"/>
+            </column>
+            <column name="amount" type="DECIMAL(10,2)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <!-- Добавляем комментарии к таблице и колонкам -->
+        <sql>
+            COMMENT ON TABLE transactions IS 'Таблица для хранения истории транзакций между картами';
+            COMMENT ON COLUMN transactions.id IS 'Уникальный идентификатор транзакции';
+            COMMENT ON COLUMN transactions.from_card_id IS 'Исходная карта (откуда списываются средства)';
+            COMMENT ON COLUMN transactions.to_card_id IS 'Целевая карта (куда зачисляются средства)';
+            COMMENT ON COLUMN transactions.amount IS 'Сумма перевода';
+            COMMENT ON COLUMN transactions.created_at IS 'Дата и время совершения транзакции';
+        </sql>
+
+        <!-- Создаем индексы для улучшения производительности -->
+        <createIndex tableName="transactions" indexName="idx_transactions_from_card_id">
+            <column name="from_card_id"/>
+        </createIndex>
+
+        <createIndex tableName="transactions" indexName="idx_transactions_to_card_id">
+            <column name="to_card_id"/>
+        </createIndex>
+
+        <createIndex tableName="transactions" indexName="idx_transactions_created_at">
+            <column name="created_at"/>
+        </createIndex>
+
+        <createIndex tableName="transactions" indexName="idx_transactions_from_to_cards">
+            <column name="from_card_id"/>
+            <column name="to_card_id"/>
+        </createIndex>
+
+        <!-- Индекс для поиска транзакций по дате -->
+        <createIndex tableName="transactions" indexName="idx_transactions_date">
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
+
+    <!-- Добавляем тестовые транзакции -->
+    <changeSet id="003-insert-sample-transactions" author="your-name">
+        <!-- Перевод между картами одного пользователя -->
+        <insert tableName="transactions">
+            <column name="from_card_id" value="2"/> <!-- Карта 4222... -->
+            <column name="to_card_id" value="3"/>   <!-- Карта 4333... -->
+            <column name="amount" value="100.00"/>
+            <column name="created_at" value="2024-01-15 14:30:00"/>
+        </insert>
+
+        <!-- Еще один перевод -->
+        <insert tableName="transactions">
+            <column name="from_card_id" value="1"/> <!-- Карта админа 4111... -->
+            <column name="to_card_id" value="2"/>   <!-- Карта пользователя 4222... -->
+            <column name="amount" value="50.00"/>
+            <column name="created_at" value="2024-01-16 09:15:00"/>
+        </insert>
+
+        <!-- Перевод между картами пользователя -->
+        <insert tableName="transactions">
+            <column name="from_card_id" value="2"/> <!-- Карта 4222... -->
+            <column name="to_card_id" value="4"/>   <!-- Карта 4444... -->
+            <column name="amount" value="75.50"/>
+            <column name="created_at" value="2024-01-17 16:45:00"/>
+        </insert>
+
+        <!-- Несколько исторических транзакций -->
+        <insert tableName="transactions">
+            <column name="from_card_id" value="3"/> <!-- Карта 4333... -->
+            <column name="to_card_id" value="2"/>   <!-- Карта 4222... -->
+            <column name="amount" value="25.00"/>
+            <column name="created_at" value="2023-12-01 11:20:00"/>
+        </insert>
+
+        <insert tableName="transactions">
+            <column name="from_card_id" value="1"/> <!-- Карта админа -->
+            <column name="to_card_id" value="3"/>   <!-- Карта 4333... -->
+            <column name="amount" value="200.00"/>
+            <column name="created_at" value="2023-11-15 13:00:00"/>
+        </insert>
+    </changeSet>
+
+    <!-- Добавляем проверку, чтобы from_card_id и to_card_id не были одинаковыми -->
+    <changeSet id="003-add-transaction-check-constraint" author="your-name">
+        <sql>
+            ALTER TABLE transactions ADD CONSTRAINT chk_transactions_different_cards
+                CHECK (from_card_id != to_card_id);
+        </sql>
+
+        <sql>
+            COMMENT ON CONSTRAINT chk_transactions_different_cards ON transactions
+            IS 'Запрещает переводы с карты на саму себя';
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
