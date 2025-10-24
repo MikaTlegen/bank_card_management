@@ -149,4 +149,15 @@ public class CardService {
                 .map(cardMapper::toResponse)
                 .collect(Collectors.toList());
     }
+
+    public BigDecimal getCardBalance(String cardNamber, Long userId, UserRole roles) {
+        Card card = cardRepository.findByCardNumber(cardNamber)
+                .orElseThrow(() -> new RuntimeException("Card not found with number: " + cardNamber));
+
+        if (roles.equals(UserRole.ROLE_USER) && !card.getUser().getId().equals(userId)) {
+            throw new RuntimeException("You do not have permission to view this card balance");
+        }
+
+        return card.getBalance();
+    }
 }

@@ -17,6 +17,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Pageable;
+
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -92,4 +94,12 @@ public class CardController {
         return ResponseEntity.ok(cardResponses);
     }
 
+    @GetMapping("/balance")
+    public ResponseEntity<BigDecimal> getCardBalance(
+            @RequestParam String cardNamber,
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+        BigDecimal balance = cardService.getCardBalance(cardNamber, currentUser.getId(), currentUser.getRoles());
+
+        return ResponseEntity.ok(balance);
+    }
 }
