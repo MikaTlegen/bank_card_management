@@ -9,8 +9,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "cards")
 @Builder
+@Table(name = "cards")
 public class Card {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,6 +18,18 @@ public class Card {
 
     @Column(name = "card_number", nullable = false, unique = true)
     private String cardNumber;
+
+    public Card(Long id, String cardNumber, String lastFourDigits, String ownerName, LocalDate expiryDate, CardStatus status, BigDecimal balance, User user, LocalDateTime createdAt) {
+        this.id = id;
+        this.cardNumber = cardNumber;
+        this.lastFourDigits = lastFourDigits;
+        this.ownerName = ownerName;
+        this.expiryDate = expiryDate;
+        this.status = status;
+        this.balance = balance;
+        this.user = user;
+        this.createdAt = createdAt;
+    }
 
     public void setLastFourDigits(String lastFourDigits) {
         this.lastFourDigits = lastFourDigits;
