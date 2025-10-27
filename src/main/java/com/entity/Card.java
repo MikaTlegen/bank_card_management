@@ -3,12 +3,14 @@ package com.entity;
 import com.enums.CardStatus;
 import jakarta.persistence.*;
 import lombok.Builder;
+import org.hibernate.annotations.Where;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
+@Where(clause = "deleted = false")
 @Builder
 @Table(name = "cards")
 public class Card {
@@ -18,34 +20,6 @@ public class Card {
 
     @Column(name = "card_number", nullable = false, unique = true)
     private String cardNumber;
-
-    public Card(Long id, String cardNumber, String lastFourDigits, String ownerName, LocalDate expiryDate, CardStatus status, BigDecimal balance, User user, LocalDateTime createdAt) {
-        this.id = id;
-        this.cardNumber = cardNumber;
-        this.lastFourDigits = lastFourDigits;
-        this.ownerName = ownerName;
-        this.expiryDate = expiryDate;
-        this.status = status;
-        this.balance = balance;
-        this.user = user;
-        this.createdAt = createdAt;
-    }
-
-    public void setLastFourDigits(String lastFourDigits) {
-        this.lastFourDigits = lastFourDigits;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public String getLastFourDigits() {
-        return lastFourDigits;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
 
     @Column(name = "last_four_digits", nullable = false, length = 4)
     private String lastFourDigits;
@@ -69,17 +43,44 @@ public class Card {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    public Card(Long id, String cardNumber, String ownerName, LocalDate expiryDate, CardStatus status, BigDecimal balance, User user) {
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted = false;
+
+    public Card() {
+    }
+
+
+    public Card(Long id, String cardNumber, String lastFourDigits, String ownerName, LocalDate expiryDate, CardStatus status, BigDecimal balance, User user, LocalDateTime createdAt, boolean deleted) {
         this.id = id;
         this.cardNumber = cardNumber;
+        this.lastFourDigits = lastFourDigits;
         this.ownerName = ownerName;
         this.expiryDate = expiryDate;
         this.status = status;
         this.balance = balance;
         this.user = user;
+        this.createdAt = createdAt;
+        this.deleted = deleted;
     }
 
-    public Card() {
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public void setLastFourDigits(String lastFourDigits) {
+        this.lastFourDigits = lastFourDigits;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getLastFourDigits() {
+        return lastFourDigits;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
     }
 
     public Long getId() {
@@ -108,6 +109,10 @@ public class Card {
 
     public User getUser() {
         return user;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
     }
 
     public void setId(Long id) {

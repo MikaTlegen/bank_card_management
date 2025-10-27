@@ -39,7 +39,8 @@ public class CardController {
     }
 
     @GetMapping
-    public ResponseEntity<CardResponse> getAllCards(
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<CardResponse>> getAllCards(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @AuthenticationPrincipal UserPrincipal currentUser) {
@@ -51,7 +52,7 @@ public class CardController {
                 currentUser.getRoles(),
                 pageable
         );
-        return ResponseEntity.ok((CardResponse) cardPage);
+        return ResponseEntity.ok(cardPage);
     }
 
     @GetMapping("/{id}")
@@ -82,8 +83,11 @@ public class CardController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> deleteCard(@PathVariable Long id) {
-        cardService.deleteCard(id);
+    public ResponseEntity<Void> deleteCard(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserPrincipal currentUser) {
+
+        cardService.deleteCard(id, currentUser.getId(), currentUser.getRoles());
         return ResponseEntity.noContent().build();
     }
 
@@ -94,11 +98,11 @@ public class CardController {
         return ResponseEntity.ok(cardResponses);
     }
 
-    @GetMapping("/balance")
+    @GetMapping("/{cardId}/balance")
     public ResponseEntity<BigDecimal> getCardBalance(
-            @RequestParam String cardNamber,
+            @PathVariable Long cardId,
             @AuthenticationPrincipal UserPrincipal currentUser) {
-        BigDecimal balance = cardService.getCardBalance(cardNamber, currentUser.getId(), currentUser.getRoles());
+        BigDecimal balance = cardService.getCardBalance(cardId, currentUser.getId(), currentUser.getRoles());
 
         return ResponseEntity.ok(balance);
     }

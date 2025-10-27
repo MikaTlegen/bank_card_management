@@ -5,12 +5,13 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
 
+    <!-- 1. Создание таблицы cards -->
     <changeSet id="002-create-cards-table" author="your-name">
         <createTable tableName="cards">
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="card_number" type="VARCHAR(16)">
+            <column name="card_number" type="VARCHAR(64)">
                 <constraints unique="true" nullable="false" uniqueConstraintName="uk_cards_card_number"/>
             </column>
             <column name="last_four_digits" type="VARCHAR(4)">
@@ -34,13 +35,17 @@
             <column name="created_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP">
                 <constraints nullable="false"/>
             </column>
+            <!-- Поле для soft delete -->
+            <column name="deleted" type="BOOLEAN" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
-        <!-- Добавляем комментарии к таблице и колонкам -->
-        <sql>
+        <!-- Комментарии -->
+        <sql dbms="postgresql">
             COMMENT ON TABLE cards IS 'Таблица для хранения информации о банковских картах';
             COMMENT ON COLUMN cards.id IS 'Уникальный идентификатор карты';
-            COMMENT ON COLUMN cards.card_number IS 'Номер карты (16 цифр)';
+            COMMENT ON COLUMN cards.card_number IS 'Номер карты (зашифрован)';
             COMMENT ON COLUMN cards.last_four_digits IS 'Последние 4 цифры номера карты';
             COMMENT ON COLUMN cards.owner_name IS 'Имя владельца карты';
             COMMENT ON COLUMN cards.expiry_date IS 'Дата истечения срока действия карты';
@@ -48,37 +53,36 @@
             COMMENT ON COLUMN cards.balance IS 'Баланс карты';
             COMMENT ON COLUMN cards.user_id IS 'Внешний ключ на таблицу пользователей';
             COMMENT ON COLUMN cards.created_at IS 'Дата и время создания карты';
+            COMMENT ON COLUMN cards.deleted IS 'Флаг логического удаления (soft delete)';
         </sql>
 
-        <!-- Создаем индексы для улучшения производительности -->
+        <!-- Индексы -->
         <createIndex tableName="cards" indexName="idx_cards_card_number">
             <column name="card_number"/>
         </createIndex>
-
         <createIndex tableName="cards" indexName="idx_cards_user_id">
             <column name="user_id"/>
         </createIndex>
-
         <createIndex tableName="cards" indexName="idx_cards_status">
             <column name="status"/>
         </createIndex>
-
         <createIndex tableName="cards" indexName="idx_cards_expiry_date">
             <column name="expiry_date"/>
         </createIndex>
-
         <createIndex tableName="cards" indexName="idx_cards_created_at">
             <column name="created_at"/>
         </createIndex>
-
         <createIndex tableName="cards" indexName="idx_cards_last_four_digits">
             <column name="last_four_digits"/>
         </createIndex>
+        <!-- Индекс для deleted (полезен, если много удалённых записей) -->
+        <createIndex tableName="cards" indexName="idx_cards_deleted">
+            <column name="deleted"/>
+        </createIndex>
     </changeSet>
 
-    <!-- Добавляем тестовые карты для существующих пользователей -->
-    <changeSet id="002-insert-sample-cards" author="your-name">
-        <!-- Карта для админа -->
+    <!-- 2. Вставка тестовых данных -->
+    <changeSet id="003-insert-sample-cards" author="your-name">
         <insert tableName="cards">
             <column name="card_number" value="4111111111111111"/>
             <column name="last_four_digits" value="1111"/>
@@ -86,11 +90,11 @@
             <column name="expiry_date" value="2026-12-31"/>
             <column name="status" value="ACTIVE"/>
             <column name="balance" value="1000.00"/>
-            <column name="user_id" value="1"/> <!-- ID админа из предыдущей миграции -->
+            <column name="user_id" value="1"/>
             <column name="created_at" value="2024-01-01 10:00:00"/>
+            <column name="deleted" value="false"/>
         </insert>
 
-        <!-- Карта для обычного пользователя -->
         <insert tableName="cards">
             <column name="card_number" value="4222222222222222"/>
             <column name="last_four_digits" value="2222"/>
@@ -98,11 +102,11 @@
             <column name="expiry_date" value="2025-06-30"/>
             <column name="status" value="ACTIVE"/>
             <column name="balance" value="500.00"/>
-            <column name="user_id" value="2"/> <!-- ID пользователя из предыдущей миграции -->
+            <column name="user_id" value="2"/>
             <column name="created_at" value="2024-01-01 11:00:00"/>
+            <column name="deleted" value="false"/>
         </insert>
 
-        <!-- Еще одна карта для пользователя -->
         <insert tableName="cards">
             <column name="card_number" value="4333333333333333"/>
             <column name="last_four_digits" value="3333"/>
@@ -112,9 +116,9 @@
             <column name="balance" value="0.00"/>
             <column name="user_id" value="2"/>
             <column name="created_at" value="2023-01-01 12:00:00"/>
+            <column name="deleted" value="false"/>
         </insert>
 
-        <!-- Заблокированная карта -->
         <insert tableName="cards">
             <column name="card_number" value="4444444444444444"/>
             <column name="last_four_digits" value="4444"/>
@@ -124,6 +128,7 @@
             <column name="balance" value="250.00"/>
             <column name="user_id" value="2"/>
             <column name="created_at" value="2024-01-01 13:00:00"/>
+            <column name="deleted" value="false"/>
         </insert>
     </changeSet>
 

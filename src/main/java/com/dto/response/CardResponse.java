@@ -1,14 +1,12 @@
 package com.dto.response;
 
-import com.entity.User;
 import com.enums.CardStatus;
 import lombok.Builder;
 
 import java.math.BigDecimal;
-import java.net.CacheResponse;
 
 @Builder
-public class CardResponse extends User {
+public class CardResponse {
     private Long id;
     private String maskedCardNumber;
     private String ownerName;

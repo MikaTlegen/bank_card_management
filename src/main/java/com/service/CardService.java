@@ -1,12 +1,16 @@
 package com.service;
 
-import com.controller.CardController;
 import com.dto.request.CardRequest;
 import com.dto.response.CardResponse;
 import com.entity.Card;
 import com.entity.User;
 import com.enums.CardStatus;
 import com.enums.UserRole;
+import com.exception.card.AccessDeniedException;
+import com.exception.card.CardNotFoundException;
+import com.exception.card.CardNumberNotFoundException;
+import com.exception.card.InvalidCardStatusException;
+import com.exception.user.UserNotFoundException;
 import com.mapper.CardMapper;
 import com.repository.CardRepository;
 import com.repository.UserRepository;
@@ -16,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.net.CacheResponse;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Base64;
@@ -40,7 +43,7 @@ public class CardService {
     @Transactional
     public CardResponse createCard(CardRequest cardRequest) {
         User user = userRepository.findById(cardRequest.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + cardRequest.getUserId()));
+                .orElseThrow(() -> new UserNotFoundException(cardRequest.getUserId()));
 
         String cardNumber = generateCardNumber();
         String encryptedCardNumber = encryptCardNumber(cardNumber);
@@ -83,7 +86,7 @@ public class CardService {
 
         Page<Card> cards;
 
-        if (userRole == UserRole.ROLE_ADMIN) {
+        if (userRole == UserRole.ADMIN) {
             cards = cardRepository.findAll(pageable);
         } else {
             cards = cardRepository.findByUserId(currentUserId, pageable);
@@ -98,10 +101,10 @@ public class CardService {
             UserRole roles) {
 
         Card card = cardRepository.findById(сardId)
-                .orElseThrow(() -> new RuntimeException("Card not found with id: " + сardId));
+                .orElseThrow(() -> new CardNotFoundException("Card not found"));
 
-        if (roles != UserRole.ROLE_ADMIN && !card.getUser().getId().equals(сurrentUserId)) {
-            throw new RuntimeException("You do not have permission to access this card");
+        if (roles != UserRole.ADMIN && !card.getUser().getId().equals(сurrentUserId)) {
+            throw new AccessDeniedException("You do not have permission to access this card");
         }
 
         return cardMapper.toResponse(card);
@@ -115,15 +118,17 @@ public class CardService {
             UserRole roles) {
 
         Card card = cardRepository.findById(cardId)
-                .orElseThrow(() -> new RuntimeException("Card not found with id: " + cardId));
+                .orElseThrow(() -> new CardNotFoundException("Card not found with id: " + cardId));
 
-        if (roles != UserRole.ROLE_ADMIN && !card.getUser().getId().equals(currentUserId)) {
-            throw new RuntimeException("You do not have permission to update this card");
+        if (roles != UserRole.ADMIN && !card.getUser().getId().equals(currentUserId)) {
+            throw new AccessDeniedException("You do not have permission to update this card");
         }
 
-        if (roles == UserRole.ROLE_USER && status != CardStatus.BLOCKED) {
-            throw new RuntimeException("You can only block the card");
+        if (roles == UserRole.USER && status != CardStatus.BLOCKED) {
+            throw new InvalidCardStatusException("You can only block the card");
+
         }
+
         if (card.getExpiryDate().isBefore(LocalDate.now())) {
             card.setStatus(CardStatus.EXPIRED);
         } else {
@@ -136,11 +141,17 @@ public class CardService {
     }
 
     @Transactional
-    public void deleteCard(Long cardId) {
-        if (!cardRepository.existsById(cardId)) {
-            throw new RuntimeException("Card not found with id: " + cardId);
+    public void deleteCard(Long cardId, Long userId, UserRole roles) {
+
+        Card card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new CardNumberNotFoundException("Card not found"));
+
+        if (roles != UserRole.ADMIN) {
+            throw new AccessDeniedException("Only administrators can delete cards");
         }
-        cardRepository.deleteById(cardId);
+
+        card.setDeleted(true);
+        cardRepository.save(card);
     }
 
     public List<CardResponse> getUserCards(Long userId) {
@@ -150,12 +161,12 @@ public class CardService {
                 .collect(Collectors.toList());
     }
 
-    public BigDecimal getCardBalance(String cardNamber, Long userId, UserRole roles) {
-        Card card = cardRepository.findByCardNumber(cardNamber)
-                .orElseThrow(() -> new RuntimeException("Card not found with number: " + cardNamber));
+    public BigDecimal getCardBalance(Long cardId, Long userId, UserRole roles) {
+        Card card = cardRepository.findById(cardId)
+                .orElseThrow(() -> new CardNumberNotFoundException("Card not found"));
 
-        if (roles.equals(UserRole.ROLE_USER) && !card.getUser().getId().equals(userId)) {
-            throw new RuntimeException("You do not have permission to view this card balance");
+        if (roles.equals(UserRole.USER) && !card.getUser().getId().equals(userId)) {
+            throw new AccessDeniedException("You do not have permission to view this card balance");
         }
 
         return card.getBalance();

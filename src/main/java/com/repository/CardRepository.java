@@ -5,6 +5,8 @@ import com.enums.CardStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
@@ -23,4 +25,8 @@ public interface CardRepository extends JpaRepository<Card, Long> {
     List<Card> findAllByUserId(Long userId);
 
     Optional<Card> findByCardNumber(String cardNumber);
+
+    @Query("SELECT c FROM Card c WHERE c.id = :id")
+    Optional<Card> findIncludingDeletedById(@Param("id") Long id);
+
 }
