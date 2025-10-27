@@ -14,7 +14,7 @@ public class TransactionRequest {
     private Long toCardId;
 
     @NotNull
-    @DecimalMin(value = "0.01")
+    @DecimalMin(value = "0.01", message = "Amount must be greater than zero")
     private BigDecimal amount;
 
     public void setFromCardId(Long fromCardId) {
