@@ -2,6 +2,7 @@ package com.entity;
 
 import com.enums.UserRole;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Where;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +12,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
+@Where(clause = "deleted = false")
 @Table(name = "users")
 public class User implements UserDetails {
     @Id
@@ -38,10 +40,13 @@ public class User implements UserDetails {
     @Column(name = "active")
     private boolean active = true;
 
+    @Column(name = "deleted")
+    private boolean deleted = false;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Card> cards = new ArrayList<>();
 
-    public User(Long id, String userName, String password, String email, String firstName, String lastName, UserRole role, List<Card> cards) {
+    public User(Long id, String userName, String password, String email, String firstName, String lastName, UserRole role, List<Card> cards, boolean deleted) {
         this.id = id;
         this.userName = userName;
         this.password = password;
@@ -50,6 +55,7 @@ public class User implements UserDetails {
         this.lastName = lastName;
         this.role = role;
         this.cards = cards;
+        this.deleted = deleted;
     }
 
     public User() {
@@ -78,6 +84,10 @@ public class User implements UserDetails {
     @Override
     public String getUsername() {
         return this.userName;
+    }
+
+    public boolean isDelete() {
+        return deleted;
     }
 
     @Override
@@ -160,4 +170,7 @@ public class User implements UserDetails {
         this.active = active;
     }
 
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
 }

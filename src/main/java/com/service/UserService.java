@@ -3,10 +3,11 @@ package com.service;
 import com.dto.request.UserRequest;
 import com.dto.response.UserResponse;
 import com.entity.User;
-import com.exception.*;
+import com.exception.user.*;
 import com.mapper.UserMapper;
 import com.repository.UserRepository;
 import com.security.UserPrincipal;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -80,8 +81,9 @@ public class UserService {
         return userMapper.toUserResponse(updatedUser);
     }
 
+    @Transactional
     public void deleteUsers(Long userId, UserPrincipal userPrincipal) {
-        User user = userRepository.findById(userId)
+        User user = userRepository.findUserWithCardsById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         if (user.getId().equals(userPrincipal.getId())) {
@@ -91,7 +93,8 @@ public class UserService {
         if (!user.getCards().isEmpty()) {
             throw new UserHasActiveCardsException();
         }
-        userRepository.delete(user);
+        user.setDeleted(true);
+        userRepository.save(user);
     }
 
 }

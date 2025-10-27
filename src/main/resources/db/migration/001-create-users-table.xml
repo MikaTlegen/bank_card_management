@@ -31,10 +31,14 @@
             <column name="active" type="BOOLEAN" defaultValue="true">
                 <constraints nullable="false"/>
             </column>
+            <!-- Новое поле: deleted как BOOLEAN (мягкое удаление флагом) -->
+            <column name="deleted" type="BOOLEAN" defaultValue="false">
+                <constraints nullable="false"/>
+            </column>
         </createTable>
 
-        <!-- Добавляем комментарии к таблице и колонкам -->
-        <sql>
+        <!-- Комментарии к таблице и колонкам -->
+        <sql dbms="postgresql">
             COMMENT ON TABLE users IS 'Таблица для хранения информации о пользователях системы';
             COMMENT ON COLUMN users.id IS 'Уникальный идентификатор пользователя';
             COMMENT ON COLUMN users.user_name IS 'Уникальное имя пользователя для входа в систему';
@@ -44,9 +48,10 @@
             COMMENT ON COLUMN users.last_name IS 'Фамилия пользователя';
             COMMENT ON COLUMN users.role IS 'Роль пользователя (ADMIN, USER)';
             COMMENT ON COLUMN users.active IS 'Флаг активности пользователя';
+            COMMENT ON COLUMN users.deleted IS 'Флаг мягкого удаления (true = удалён)';
         </sql>
 
-        <!-- Создаем индексы для улучшения производительности -->
+        <!-- Индексы -->
         <createIndex tableName="users" indexName="idx_users_user_name">
             <column name="user_name"/>
         </createIndex>
@@ -62,28 +67,35 @@
         <createIndex tableName="users" indexName="idx_users_active">
             <column name="active"/>
         </createIndex>
+
+        <!-- Индекс для deleted, если часто фильтруете по нему -->
+        <createIndex tableName="users" indexName="idx_users_deleted">
+            <column name="deleted"/>
+        </createIndex>
     </changeSet>
 
-    <!-- Добавляем начальных пользователей (опционально) -->
+    <!-- Вставка начальных пользователей -->
     <changeSet id="001-insert-default-users" author="your-name">
         <insert tableName="users">
             <column name="user_name" value="admin"/>
-            <column name="password" value="$2a$12$A1q0Gvuc5eD.MwNWW7KrreVPSwsLPGy26T7TkhUwJQhFTm1FDUzsy"/> <!-- password: admin123 -->
+            <column name="password" value="$2a$12$A1q0Gvuc5eD.MwNWW7KrreVPSwsLPGy26T7TkhUwJQhFTm1FDUzsy"/>
             <column name="email" value="admin@example.com"/>
             <column name="full_name" value="System"/>
             <column name="last_name" value="Administrator"/>
             <column name="role" value="ADMIN"/>
             <column name="active" value="true"/>
+            <column name="deleted" value="false"/>
         </insert>
 
         <insert tableName="users">
             <column name="user_name" value="user1"/>
-            <column name="password" value="$2a$12$A1q0Gvuc5eD.MwNWW7KrreVPSwsLPGy26T7TkhUwJQhFTm1FDUzsy"/> <!-- password: admin123 -->
+            <column name="password" value="$2a$12$A1q0Gvuc5eD.MwNWW7KrreVPSwsLPGy26T7TkhUwJQhFTm1FDUzsy"/>
             <column name="email" value="user1@example.com"/>
             <column name="full_name" value="John"/>
             <column name="last_name" value="Doe"/>
             <column name="role" value="USER"/>
             <column name="active" value="true"/>
+            <column name="deleted" value="false"/>
         </insert>
     </changeSet>
 

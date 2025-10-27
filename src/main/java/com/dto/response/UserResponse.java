@@ -6,6 +6,13 @@ public class UserResponse {
     private Long id;
     private String username;
     private String password;
+    private String email;
+    private String fullName;
+    private UserRole role;
+    private int cardCount;
+
+    public UserResponse() {
+    }
 
     public void setPassword(String password) {
         this.password = password;
@@ -13,14 +20,6 @@ public class UserResponse {
 
     public String getPassword() {
         return password;
-    }
-
-    private String email;
-    private String fullName;
-    private UserRole role;
-    private int cardCount;
-
-    public UserResponse() {
     }
 
     public boolean isActive() {
