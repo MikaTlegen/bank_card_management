@@ -1,6 +1,10 @@
 package com.exception;
 
 import com.dto.response.ErrorResponse;
+import com.exception.Transfer.CardOwnershipException;
+import com.exception.Transfer.ExpiredCardTransferException;
+import com.exception.Transfer.InsufficientFundsException;
+import com.exception.Transfer.TransferToSameCardException;
 import com.exception.card.AccessDeniedException;
 import com.exception.card.CardNotFoundException;
 import com.exception.card.CardNumberNotFoundException;
@@ -59,6 +63,48 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(InvalidCardStatusException.class)
     public ResponseEntity<ErrorResponse> handleInvalidCardStatus(InvalidCardStatusException ex) {
         ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    // В классе GlobalExceptionHandler
+
+    @ExceptionHandler(TransferToSameCardException.class)
+    public ResponseEntity<ErrorResponse> handleTransferToSameCard(TransferToSameCardException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(CardOwnershipException.class)
+    public ResponseEntity<ErrorResponse> handleCardOwnership(CardOwnershipException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.FORBIDDEN.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
+    @ExceptionHandler(ExpiredCardTransferException.class)
+    public ResponseEntity<ErrorResponse> handleExpiredCard(ExpiredCardTransferException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(InsufficientFundsException.class)
+    public ResponseEntity<ErrorResponse> handleInsufficientFunds(InsufficientFundsException ex) {
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }
