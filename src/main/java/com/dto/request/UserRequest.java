@@ -3,11 +3,9 @@ package com.dto.request;
 import com.enums.UserRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 
 public class UserRequest {
 
-    @NotNull
     private Long id;
 
     @NotBlank
@@ -21,9 +19,23 @@ public class UserRequest {
     private String email;
 
     @NotBlank
-    private String FullName;
+    private String fullName;
 
     private UserRole role;
+
+    public UserRequest() {
+
+    }
+
+    public UserRequest(Long id, String userName, String password, String email, String fullName, UserRole role) {
+        this.id = id;
+        this.userName = userName;
+        this.password = password;
+        this.email = email;
+        this.fullName = fullName;
+        this.role = role;
+    }
+
 
     public void setUserName(String userName) {
         this.userName = userName;
@@ -38,7 +50,7 @@ public class UserRequest {
     }
 
     public void setFullName(String fullName) {
-        FullName = fullName;
+        this.fullName = fullName;
     }
 
     public void setRole(UserRole role) {
@@ -58,24 +70,11 @@ public class UserRequest {
     }
 
     public String getFullName() {
-        return FullName;
+        return fullName;
     }
 
     public UserRole getRole() {
         return role;
-    }
-
-    public UserRequest(Long id) {
-        this.id = id;
-    }
-
-    public UserRequest(Long id, String userName, String password, String email, String fullName, UserRole role) {
-        this.id = id;
-        this.userName = userName;
-        this.password = password;
-        this.email = email;
-        FullName = fullName;
-        this.role = role;
     }
 
     public Long getId() {

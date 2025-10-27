@@ -3,6 +3,7 @@ package com.service;
 import com.dto.request.UserRequest;
 import com.dto.response.UserResponse;
 import com.entity.User;
+import com.exception.*;
 import com.mapper.UserMapper;
 import com.repository.UserRepository;
 import com.security.UserPrincipal;
@@ -30,7 +31,7 @@ public class UserService {
     public UserResponse getUserById(Long userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(userId));
         return userMapper.toUserResponse(user);
 
     }
@@ -40,8 +41,13 @@ public class UserService {
     }
 
     public UserResponse createUsers(UserRequest userRequest, UserPrincipal userPrincipal) {
+
+        if (userRequest.getPassword() == null || userRequest.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("Password cannot be null or empty");
+        }
+
         if (userRepository.existsByEmail(userRequest.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new EmailAlreadyExistsException(userRequest.getEmail());
         }
 
         User user = userMapper.toUser(userRequest);
@@ -53,15 +59,15 @@ public class UserService {
 
     public UserResponse updateUsers(Long userId, UserRequest userRequest, UserPrincipal userPrincipal) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         if (userRequest.getUserName() != null && !userRequest.getUserName().equals(user.getUserName())
                 && userRepository.existsByUserName(userRequest.getUserName())) {
-            throw new RuntimeException("Username already exists" + userRequest.getUserName());
+            throw new UsernameAlreadyExistsException(userRequest.getUserName());
         }
         if (userRequest.getEmail() != null && !userRequest.getEmail().equals(user.getEmail())
                 && userRepository.existsByEmail(userRequest.getEmail())) {
-            throw new RuntimeException("Email already exists" + userRequest.getEmail());
+            throw new EmailAlreadyExistsException(userRequest.getEmail());
         }
 
         userMapper.updateUserFromRequest(userRequest, user);
@@ -76,15 +82,16 @@ public class UserService {
 
     public void deleteUsers(Long userId, UserPrincipal userPrincipal) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(userId));
 
         if (user.getId().equals(userPrincipal.getId())) {
-            throw new RuntimeException("You cannot delete your own account");
+            throw new SelfDeletionForbiddenException();
         }
 
         if (!user.getCards().isEmpty()) {
-            throw new RuntimeException("Cannot delete user with active cards. Please delete cards first");
+            throw new UserHasActiveCardsException();
         }
         userRepository.delete(user);
     }
+
 }

@@ -26,7 +26,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/id")
+    @GetMapping("/{userId}")
     public ResponseEntity<UserResponse> getUserById(
             @PathVariable Long userId) {
 
@@ -38,7 +38,7 @@ public class UserController {
     public ResponseEntity<Page<UserResponse>> getUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
-           ) {
+    ) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
@@ -55,7 +55,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userResponse);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{userId}")
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable Long userId,
             @RequestBody @Valid UserRequest userUpdateRequest,
@@ -65,7 +65,7 @@ public class UserController {
         return ResponseEntity.ok(userResponse);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(
             @PathVariable Long userId,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
