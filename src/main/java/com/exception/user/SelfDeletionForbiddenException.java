@@ -1,4 +1,4 @@
-package com.exception;
+package com.exception.user;
 
 public class SelfDeletionForbiddenException extends RuntimeException {
     public SelfDeletionForbiddenException() {

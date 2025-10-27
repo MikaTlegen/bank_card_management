@@ -1,4 +1,4 @@
-package com.exception;
+package com.exception.user;
 
 public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException(Long userId) {
