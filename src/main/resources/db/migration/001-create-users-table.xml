@@ -10,7 +10,7 @@
             <column name="id" type="BIGINT" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="username" type="VARCHAR(50)">
+            <column name="user_name" type="VARCHAR(50)">
                 <constraints unique="true" nullable="false"/>
             </column>
             <column name="password" type="VARCHAR(255)">
@@ -37,18 +37,18 @@
         <sql>
             COMMENT ON TABLE users IS 'Таблица для хранения информации о пользователях системы';
             COMMENT ON COLUMN users.id IS 'Уникальный идентификатор пользователя';
-            COMMENT ON COLUMN users.username IS 'Уникальное имя пользователя для входа в систему';
+            COMMENT ON COLUMN users.user_name IS 'Уникальное имя пользователя для входа в систему';
             COMMENT ON COLUMN users.password IS 'Хешированный пароль пользователя';
             COMMENT ON COLUMN users.email IS 'Уникальный email пользователя';
             COMMENT ON COLUMN users.full_name IS 'Имя пользователя';
             COMMENT ON COLUMN users.last_name IS 'Фамилия пользователя';
-            COMMENT ON COLUMN users.role IS 'Роль пользователя (ROLE_ADMIN, ROLE_USER)';
+            COMMENT ON COLUMN users.role IS 'Роль пользователя (ADMIN, USER)';
             COMMENT ON COLUMN users.active IS 'Флаг активности пользователя';
         </sql>
 
         <!-- Создаем индексы для улучшения производительности -->
-        <createIndex tableName="users" indexName="idx_users_username">
-            <column name="username"/>
+        <createIndex tableName="users" indexName="idx_users_user_name">
+            <column name="user_name"/>
         </createIndex>
 
         <createIndex tableName="users" indexName="idx_users_email">
@@ -67,22 +67,22 @@
     <!-- Добавляем начальных пользователей (опционально) -->
     <changeSet id="001-insert-default-users" author="your-name">
         <insert tableName="users">
-            <column name="username" value="admin"/>
-            <column name="password" value="$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubh4a"/> <!-- password: admin123 -->
+            <column name="user_name" value="admin"/>
+            <column name="password" value="$2a$12$A1q0Gvuc5eD.MwNWW7KrreVPSwsLPGy26T7TkhUwJQhFTm1FDUzsy"/> <!-- password: admin123 -->
             <column name="email" value="admin@example.com"/>
             <column name="full_name" value="System"/>
             <column name="last_name" value="Administrator"/>
-            <column name="role" value="ROLE_ADMIN"/>
+            <column name="role" value="ADMIN"/>
             <column name="active" value="true"/>
         </insert>
 
         <insert tableName="users">
-            <column name="username" value="user1"/>
-            <column name="password" value="$2a$10$8.UnVuG9HHgffUDAlk8qfOuVGkqRzgVymGe07xd00DMxs.AQubh4a"/> <!-- password: admin123 -->
+            <column name="user_name" value="user1"/>
+            <column name="password" value="$2a$12$A1q0Gvuc5eD.MwNWW7KrreVPSwsLPGy26T7TkhUwJQhFTm1FDUzsy"/> <!-- password: admin123 -->
             <column name="email" value="user1@example.com"/>
             <column name="full_name" value="John"/>
             <column name="last_name" value="Doe"/>
-            <column name="role" value="ROLE_USER"/>
+            <column name="role" value="USER"/>
             <column name="active" value="true"/>
         </insert>
     </changeSet>
