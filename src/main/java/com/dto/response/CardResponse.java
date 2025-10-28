@@ -90,4 +90,7 @@ public class CardResponse {
         this.userId = userId;
         this.userName = userName;
     }
+    public CardResponse() {
+
+    }
 }

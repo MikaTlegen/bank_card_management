@@ -32,8 +32,8 @@ public class UserResponse {
         this.id = id;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUserName(String userName) {
+        this.username = userName;
     }
 
     public void setEmail(String email) {
