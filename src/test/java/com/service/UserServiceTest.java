@@ -109,21 +109,33 @@ public class UserServiceTest {
         assertThrows(UserNotFoundException.class, () -> userService.getUserById(1L));
     }
 
+    @Test
+    void testCreateUser_Success() {
 
-//    @Test
-//    void testCreateUser_Success() {
-//        when(userRepository.existsByEmail(any())).thenReturn(false); // Email не занят
-//        when(userMapper.toUser(any(UserRequest.class))).thenReturn(testUser);
-//        when(passwordEncoder.encode(any())).thenReturn("encodedPassword"); // Шифруем пароль
-//        when(userRepository.save(any(User.class))).thenReturn(testUser);
-//        when(userMapper.toUserResponse(any(User.class))).thenReturn(new UserResponse());
-//
-//        // ВЫПОЛНЕНИЕ
-//        UserResponse result = userService.createUsers(createUserRequest, testUserPrincipalRoleAdmin);
-//
-//        // ПРОВЕРКА
-//        assertNotNull(result);
-//        verify(userRepository).save(any(User.class)); // Проверяем сохранение
-//        verify(passwordEncoder).encode("password"); // Проверяем шифрование пароля
-//    }
+        User newUser = new User();
+        newUser.setId(3L);
+        newUser.setUserName("newUser");
+        newUser.setEmail("newuser@example.com");
+        newUser.setPassword("encodedPassword");
+        newUser.setFullName("New User");
+        newUser.setRole(UserRole.USER);
+
+        when(userRepository.findById(2L)).thenReturn(Optional.of(testUserRoleAdmin));
+        when(userRepository.existsByEmail("newuser@example.com")).thenReturn(false);
+        when(userRepository.existsByUserName("newUser")).thenReturn(false);
+        when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
+        when(userMapper.toUser(any(UserRequest.class))).thenReturn(newUser);
+        when(userRepository.save(any(User.class))).thenReturn(newUser);
+        when(userMapper.toUserResponse(any(User.class))).thenReturn(new UserResponse());
+
+        UserResponse userResponse = userService.createUsers(createUserRequest, testUserPrincipalRoleAdmin);
+
+        assertNotNull(userResponse);
+        verify(userRepository).findById(2L);
+        verify(userRepository).existsByEmail("newuser@example.com");
+        verify(userRepository).existsByUserName("newUser");
+        verify(passwordEncoder).encode("password123");
+        verify(userRepository).save(any(User.class));
+        verify(userMapper).toUserResponse(any(User.class));
+    }
 }
