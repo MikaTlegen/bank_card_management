@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/user")
-@PreAuthorize("hasRole('ADMIN')")
 public class UserController {
 
     private final UserService userService;
@@ -27,19 +26,21 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> getUserById(
-            @PathVariable Long userId) {
+            @PathVariable Long userId
+            ) {
 
         UserResponse userResponse = userService.getUserById(userId);
         return ResponseEntity.ok(userResponse);
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponse>> getUsers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
-
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
         Page<UserResponse> userResponse = userService.getUsers(pageable);
@@ -47,6 +48,7 @@ public class UserController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> createUser(
             @RequestBody @Valid UserRequest userCreateRequest,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
@@ -56,6 +58,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable Long userId,
             @RequestBody @Valid UserRequest userUpdateRequest,
@@ -66,6 +69,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(
             @PathVariable Long userId,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {

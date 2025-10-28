@@ -3,6 +3,7 @@ package com.service;
 import com.dto.request.UserRequest;
 import com.dto.response.UserResponse;
 import com.entity.User;
+import com.enums.UserRole;
 import com.exception.user.*;
 import com.mapper.UserMapper;
 import com.repository.UserRepository;
@@ -43,6 +44,13 @@ public class UserService {
 
     public UserResponse createUsers(UserRequest userRequest, UserPrincipal userPrincipal) {
 
+        User user = userRepository.findById(userPrincipal.getId())
+                .orElseThrow(() -> new UserNotFoundException(userPrincipal.getId()));
+
+        if (user.getRole().equals(UserRole.USER)) {
+            throw new UserHasNoRights("User has no rights to create a new user");
+        }
+
         if (userRequest.getPassword() == null || userRequest.getPassword().isEmpty()) {
             throw new IllegalArgumentException("Password cannot be null or empty");
         }
@@ -51,7 +59,7 @@ public class UserService {
             throw new EmailAlreadyExistsException(userRequest.getEmail());
         }
 
-        User user = userMapper.toUser(userRequest);
+        user = userMapper.toUser(userRequest);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         User sevedUser = userRepository.save(user);
@@ -61,6 +69,10 @@ public class UserService {
     public UserResponse updateUsers(Long userId, UserRequest userRequest, UserPrincipal userPrincipal) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
+
+        if (user.getRole().equals(UserRole.USER)) {
+            throw new UserHasNoRights("User has no rights to update this user");
+        }
 
         if (userRequest.getUserName() != null && !userRequest.getUserName().equals(user.getUserName())
                 && userRepository.existsByUserName(userRequest.getUserName())) {
@@ -85,6 +97,10 @@ public class UserService {
     public void deleteUsers(Long userId, UserPrincipal userPrincipal) {
         User user = userRepository.findUserWithCardsById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
+
+        if (user.getRole().equals(UserRole.USER)) {
+            throw new UserHasNoRights("User has no rights to delete this user");
+        }
 
         if (user.getId().equals(userPrincipal.getId())) {
             throw new SelfDeletionForbiddenException();
