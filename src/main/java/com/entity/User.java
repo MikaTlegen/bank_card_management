@@ -31,9 +31,6 @@ public class User implements UserDetails {
     @Column(name = "full_name")
     private String fullName;
 
-    @Column(name = "last_name")
-    private String lastName;
-
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
@@ -46,13 +43,12 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Card> cards = new ArrayList<>();
 
-    public User(Long id, String userName, String password, String email, String firstName, String lastName, UserRole role, List<Card> cards, boolean deleted) {
+    public User(Long id, String userName, String password, String email, String firstName, UserRole role, List<Card> cards, boolean deleted) {
         this.id = id;
         this.userName = userName;
         this.password = password;
         this.email = email;
         this.fullName = firstName;
-        this.lastName = lastName;
         this.role = role;
         this.cards = cards;
         this.deleted = deleted;
@@ -118,10 +114,6 @@ public class User implements UserDetails {
         return fullName;
     }
 
-    public String getLastName() {
-        return lastName;
-    }
-
     public UserRole getRole() {
         return role;
     }
@@ -154,9 +146,6 @@ public class User implements UserDetails {
         this.role = role;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
 
     public void setCards(List<Card> cards) {
         this.cards = cards;

@@ -22,9 +22,6 @@
             <column name="full_name" type="VARCHAR(100)">
                 <constraints nullable="true"/>
             </column>
-            <column name="last_name" type="VARCHAR(100)">
-                <constraints nullable="true"/>
-            </column>
             <column name="role" type="VARCHAR(20)">
                 <constraints nullable="false"/>
             </column>
@@ -44,8 +41,7 @@
             COMMENT ON COLUMN users.user_name IS 'Уникальное имя пользователя для входа в систему';
             COMMENT ON COLUMN users.password IS 'Хешированный пароль пользователя';
             COMMENT ON COLUMN users.email IS 'Уникальный email пользователя';
-            COMMENT ON COLUMN users.full_name IS 'Имя пользователя';
-            COMMENT ON COLUMN users.last_name IS 'Фамилия пользователя';
+            COMMENT ON COLUMN users.full_name IS 'полное имя пользователя';
             COMMENT ON COLUMN users.role IS 'Роль пользователя (ADMIN, USER)';
             COMMENT ON COLUMN users.active IS 'Флаг активности пользователя';
             COMMENT ON COLUMN users.deleted IS 'Флаг мягкого удаления (true = удалён)';
@@ -81,7 +77,6 @@
             <column name="password" value="$2a$12$A1q0Gvuc5eD.MwNWW7KrreVPSwsLPGy26T7TkhUwJQhFTm1FDUzsy"/>
             <column name="email" value="admin@example.com"/>
             <column name="full_name" value="System"/>
-            <column name="last_name" value="Administrator"/>
             <column name="role" value="ADMIN"/>
             <column name="active" value="true"/>
             <column name="deleted" value="false"/>
@@ -92,7 +87,6 @@
             <column name="password" value="$2a$12$A1q0Gvuc5eD.MwNWW7KrreVPSwsLPGy26T7TkhUwJQhFTm1FDUzsy"/>
             <column name="email" value="user1@example.com"/>
             <column name="full_name" value="John"/>
-            <column name="last_name" value="Doe"/>
             <column name="role" value="USER"/>
             <column name="active" value="true"/>
             <column name="deleted" value="false"/>
