@@ -20,7 +20,8 @@ public class JwtService {
 
     @Value("${jwt.secret}")
     private String SECRET_KEY;
-    private final Long JWT_EXPIRATION = 86400000L; // 24 часа
+    @Value("${jwt.expirationMs}")
+    private Long JWT_EXPIRATION; // 24 часа
 
     private Key getSigningKey() {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
